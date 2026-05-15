@@ -9,8 +9,8 @@ Em um sistema de chat sem o padrão, cada usuário precisaria manter referência
 # Estrutura do Projeto
 O projeto é composto por um único arquivo ChatMediator.java com todas as classes internas:
 ChatMediator.java
-Mediator (interface — contrato do mediador)
-SalaDeChat (Mediator Concreto)
-Usuario (Colega abstrato — Colleague)
-UsuarioComum (Colega Concreto)
-ChatMediator (classe principal — main)
+  Mediator (interface — contrato do mediador)
+  SalaDeChat (Mediator Concreto)
+  Usuario (Colega abstrato — Colleague)
+  UsuarioComum (Colega Concreto)
+  ChatMediator (classe principal — main)
