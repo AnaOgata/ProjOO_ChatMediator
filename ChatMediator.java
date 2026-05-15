@@ -2,109 +2,97 @@ import java.util.ArrayList;
 import java.util.List;
 
 // ----- INTERFACE MEDIATOR -----
-// Define o contrato do mediador: registrar usuários e enviar mensagens
-  interface Mediator {
+// Define o contrato do mediador
+interface Mediator {
     void registrarUsuario(Usuario usuario);
     void enviarMensagem(String mensagem, Usuario remetente);
 }
 
 // ----- MEDIATOR CONCRETO -----
-// Centraliza toda a comunicação entre os usuários. Nenhum usuário conhece os outros, só conhece o mediador.
 class SalaDeChat implements Mediator {
 
-  private final String nomeSala;
-  private final List<Usuario> usuarios = new ArrayList<>();
+    private final String nomeSala;
+    private final List<Usuario> usuarios = new ArrayList<>();
 
-  public SalaDeChat(String nomeSala) {
-  this.nomeSala = nomeSala;
-}
-
-@Override
-public void registrarUsuario(Usuario usuario) {
-  usuarios.add(usuario);
-  System.out.println("[" + nomeSala + "] " + usuario.getNome() + " entrou na sala.");
-}
-
-@Override
-public void enviarMensagem(String mensagem, Usuario remetente) {
-  System.out.println("\n[" + nomeSala + "] " + remetente.getNome() + ": " + mensagem);
-    for (Usuario usuario : usuarios) {
-      // O mediador distribui a mensagem para todos, exceto o remetente
-      if (!usuario.equals(remetente)) {
-        usuario.receberMensagem(mensagem, remetente.getNome());
-      }
+    public SalaDeChat(String nomeSala) {
+        this.nomeSala = nomeSala;
     }
-  }
+
+    @Override
+    public void registrarUsuario(Usuario usuario) {
+        usuarios.add(usuario);
+        System.out.println("[" + nomeSala + "] " + usuario.getNome() + " entrou na sala.");
+    }
+
+    @Override
+    public void enviarMensagem(String mensagem, Usuario remetente) {
+        System.out.println("\n[" + nomeSala + "] " + remetente.getNome() + ": " + mensagem);
+
+        for (Usuario usuario : usuarios) {
+            // Envia para todos, exceto o remetente
+            if (!usuario.equals(remetente)) {
+                usuario.receberMensagem(mensagem, remetente.getNome());
+            }
+        }
+    }
 }
 
-// ----- CLASSE ABSTRATA -------
-// Representa qualquer participante do chat. Conhece apenas o mediador, nunca os outros usuários diretamente.
+// ----- CLASSE ABSTRATA -----
 abstract class Usuario {
 
-  protected final String nome;
-  protected final Mediator mediador;
+    protected final String nome;
+    protected final Mediator mediador;
 
-  public Usuario(String nome, Mediator mediador) {
-    this.nome = nome;
-    this.mediador = mediador;
-  }
+    public Usuario(String nome, Mediator mediador) {
+        this.nome = nome;
+        this.mediador = mediador;
+    }
 
-  public String getNome() {
-  return nome;
-  }
+    public String getNome() {
+        return nome;
+    }
 
-  // Envia mensagem através do mediador
-  public void enviar(String mensagem) {
-  mediador.enviarMensagem(mensagem, this);
-  }
+    public void enviar(String mensagem) {
+        mediador.enviarMensagem(mensagem, this);
+    }
 
-  // Recebe mensagem entregue pelo mediador
-  public abstract void receberMensagem(String mensagem, String nomeRemetente);
-  }
-
-  // ----- COLEGA CONCRETO: UsuarioComum -----
-  class UsuarioComum extends Usuario {
-
-  public UsuarioComum(String nome, Mediator mediador) {
-  super(nome, mediador);
-  mediador.registrarUsuario(this); // se registra ao ser criado
-  }
-
-  @Override
-  public void receberMensagem(String mensagem, String nomeRemetente) {
-  System.out.println(" >> " + nome + " recebeu de " + nomeRemetente + ": \"" + mensagem + "\"");
-  }
+    public abstract void receberMensagem(String mensagem, String nomeRemetente);
 }
 
-  // ----- CLIENTE / DEMONSTRAÇÃO -----
-  public class ChatMediator {
+// ----- COLEGA CONCRETO -----
+class UsuarioComum extends Usuario {
 
-  public static void main(String[] args) {
+    public UsuarioComum(String nome, Mediator mediador) {
+        super(nome, mediador);
+        mediador.registrarUsuario(this);
+    }
 
-  System.out.println("=== Chat com Padrão Mediator ===\n");
+    @Override
+    public void receberMensagem(String mensagem, String nomeRemetente) {
+        System.out.println(" >> " + nome + " recebeu de " + nomeRemetente + ": \"" + mensagem + "\"");
+    }
+}
 
-  // Criação do mediador (a sala de chat)
-  Mediator sala = new SalaDeChat("Sala Geral");
+// ----- CLIENTE / MAIN -----
+public class ChatMediator {
 
-  // Criação dos participantes — cada um se registra automaticamente na sala
-  Usuario alice = new UsuarioComum("Alice", sala);
-  Usuario bob = new UsuarioComum("Pedro", sala);
-  Usuario carlos = new UsuarioComum("Carlos", sala);
+    public static void main(String[] args) {
 
-  System.out.println();
+        System.out.println("=== Chat com Padrão Mediator ===\n");
 
-  // Alice envia uma mensagem para todos na sala
-  alice.enviar("Olá pessoal, tudo bem?");
+        Mediator sala = new SalaDeChat("Sala Geral");
 
-  // Pedro responde
-  pedro.enviar("Oi Alice! Tudo ótimo por aqui.");
+        Usuario alice = new UsuarioComum("Alice", sala);
+        Usuario pedro = new UsuarioComum("Pedro", sala);
+        Usuario carlos = new UsuarioComum("Carlos", sala);
 
-  // Carlos participa
-  carlos.enviar("Boa tarde a todos!");
+        System.out.println();
 
-  // Pedro manda mais uma
-  pedro.enviar("Carlos, seja bem-vindo!");
+        alice.enviar("Olá pessoal, tudo bem?");
+        pedro.enviar("Oi Alice! Tudo ótimo por aqui.");
+        carlos.enviar("Boa tarde a todos!");
+        pedro.enviar("Carlos, seja bem-vindo!");
 
-  System.out.println("\n=== Fim da sessão ===");
-  }
+        System.out.println("\n=== Fim da sessão ===");
+    }
 }
